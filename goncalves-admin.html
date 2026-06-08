@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gonçalves — Panel Administrador</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --dark:#0f1a0b;--dark2:#1c2e16;--sidebar:#141f0f;
+  --green:#2d5a27;--green2:#4a8c40;--green3:#7bc470;
+  --gold:#c8953a;--gold2:#e8b84b;--orange:#d4602a;
+  --bg:#f2ede4;--card:#ffffff;--border:#ddd6c8;
+  --muted:#8a7f6e;--text:#1a1a0f;--red:#c0392b;--yellow:#d4a017;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-height:100vh;background:var(--sidebar);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;border-right:1px solid rgba(200,149,58,.15);}
+.sb-brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sb-logo{display:flex;align-items:center;gap:10px;}
+.sb-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.sb-name{font-family:'Playfair Display',serif;font-size:16px;color:white;font-weight:700;}
+.sb-name span{color:var(--gold2);}
+.sb-subtitle{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.3);margin-top:2px;}
+.sb-section{padding:16px 0 4px;}
+.sb-label{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.2);padding:0 18px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;transition:all .18s;color:rgba(255,255,255,.45);font-size:13px;font-weight:600;border-left:3px solid transparent;margin:1px 0;}
+.nav-item:hover{background:rgba(255,255,255,.04);color:rgba(255,255,255,.75);}
+.nav-item.active{background:rgba(200,149,58,.12);color:var(--gold2);border-left-color:var(--gold2);}
+.nav-item .ni{font-size:17px;width:20px;text-align:center;}
+.sb-bottom{margin-top:auto;padding:16px 18px;border-top:1px solid rgba(255,255,255,.07);}
+.sb-user{display:flex;align-items:center;gap:9px;}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:white;flex-shrink:0;}
+.sb-uname{font-size:12px;font-weight:700;color:white;}
+.sb-urole{font-size:10px;color:var(--muted);}
+
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+.topbar{height:58px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50;}
+.topbar-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.btn{padding:8px 16px;border-radius:9px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;transition:all .18s;}
+.btn-primary{background:var(--green);color:white;}
+.btn-primary:hover{background:var(--green2);}
+.btn-secondary{background:#f0ece4;color:var(--text);border:1px solid var(--border);}
+.btn-gold{background:var(--gold);color:white;}
+.badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.3px;}
+.bg-green{background:#e6f5e2;color:var(--green);}
+.bg-gold{background:#fdf3e0;color:var(--gold);}
+.bg-red{background:#fde8e6;color:var(--red);}
+.bg-gray{background:#eeebe5;color:var(--muted);}
+.bg-orange{background:#fdeede;color:var(--orange);}
+
+/* ── CONTENT ── */
+.content{padding:26px 28px;flex:1;}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px;}
+.stat-card{background:var(--card);border-radius:16px;padding:20px 22px;border:1px solid var(--border);position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.sc-green::after{background:linear-gradient(90deg,var(--green),var(--green3));}
+.sc-gold::after{background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.sc-red::after{background:var(--red);}
+.sc-orange::after{background:var(--orange);}
+.stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;}
+.stat-val{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;margin:6px 0 2px;}
+.stat-sub{font-size:11px;color:var(--muted);}
+.stat-ico{position:absolute;right:18px;top:18px;font-size:26px;opacity:.12;}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden;}
+.card-hdr{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;}
+.card-body{padding:22px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:0 16px 10px;font-weight:700;}
+td{padding:13px 16px;border-top:1px solid var(--border);font-size:13px;vertical-align:middle;}
+tr:hover td{background:#faf7f2;}
+
+/* ── MAP SVG ── */
+.map-wrap{border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#dcebd6;position:relative;}
+.map-wrap svg{display:block;width:100%;}
+.map-tip{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:var(--dark);color:white;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;display:none;white-space:nowrap;z-index:5;border:1px solid rgba(200,149,58,.3);}
+.map-pin-svg{cursor:pointer;transition:transform .2s;transform-origin:center;}
+.map-pin-svg:hover{transform:scale(1.25);}
+
+/* ── STOCK BAR ── */
+.sbar-wrap{height:5px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:4px;width:80px;}
+.sbar{height:100%;border-radius:4px;}
+.sbar-ok{background:var(--green3);}
+.sbar-mid{background:var(--yellow);}
+.sbar-low{background:var(--red);}
+
+/* ── ROUTE ── */
+.route-stop{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.route-stop:last-child{border:none;}
+.rs-num{width:26px;height:26px;border-radius:50%;background:var(--green);color:white;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rs-name{font-weight:700;font-size:13px;}
+.rs-addr{font-size:11px;color:var(--muted);margin-top:1px;}
+.rs-items{font-size:11px;color:var(--green);margin-top:3px;}
+
+/* ── TOGGLE ── */
+.tgl{position:relative;width:38px;height:21px;flex-shrink:0;}
+.tgl input{opacity:0;width:0;height:0;}
+.tgl-sl{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:21px;transition:.3s;}
+.tgl-sl::before{content:'';position:absolute;height:15px;width:15px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;}
+input:checked+.tgl-sl{background:var(--green3);}
+input:checked+.tgl-sl::before{transform:translateX(17px);}
+
+/* ── MODAL ── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(15,26,11,.5);z-index:1000;align-items:center;justify-content:center;}
+.modal-ov.open{display:flex;}
+.modal{background:white;border-radius:20px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal-hdr{padding:22px 26px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;}
+.modal-close{background:none;border:none;font-size:21px;cursor:pointer;color:var(--muted);}
+.modal-body{padding:22px 26px;}
+.modal-foot{padding:14px 26px 22px;display:flex;gap:10px;justify-content:flex-end;}
+.fld{margin-bottom:13px;}
+.fld label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);display:block;margin-bottom:4px;}
+.fld input,.fld select,.fld textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border .2s;}
+.fld input:focus,.fld select:focus{border-color:var(--green);}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.price-wrap{position:relative;}
+.price-wrap span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);font-weight:700;}
+.price-wrap input{padding-left:22px;}
+
+/* ── ORDER CARD ── */
+.order-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;transition:border .2s;}
+.order-card:hover{border-color:var(--green);}
+.oc-id{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;}
+.oc-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.oc-items{font-size:12px;margin-top:5px;color:var(--dark2);}
+.oc-total{font-family:'Playfair Display',serif;font-size:18px;color:var(--green);font-weight:700;}
+
+/* ── PAYMENT OPTS ── */
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.pay-row:last-child{border:none;}
+.pay-method-card{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg);border-radius:10px;margin-bottom:9px;}
+
+/* ── NOTIFICATION ── */
+.notif{position:fixed;top:18px;right:18px;z-index:9999;background:var(--dark);color:white;padding:12px 18px;border-radius:12px;font-size:13px;font-weight:600;transform:translateX(130%);transition:transform .3s;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:300px;}
+.notif.show{transform:translateX(0);}
+.notif.ok{border-left:3px solid var(--green3);}
+.notif.err{border-left:3px solid var(--red);}
+
+/* ── MOBILE ── */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--sidebar);border-top:1px solid rgba(200,149,58,.2);height:58px;align-items:stretch;}
+.mob-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:rgba(255,255,255,.4);font-size:9px;font-weight:700;border:none;background:none;text-transform:uppercase;letter-spacing:.5px;}
+.mob-item .mi{font-size:19px;}
+.mob-item.active{color:var(--gold2);}
+
+@media(max-width:900px){
+  .sidebar{width:54px;}
+  .sb-name,.sb-subtitle,.sb-label,.nav-item span,.sb-uname,.sb-urole{display:none;}
+  .main{margin-left:54px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .grid2{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .sidebar{width:0;overflow:hidden;}
+  .main{margin-left:0;padding-bottom:58px;}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px;}
+  .content{padding:14px;}
+  .topbar{padding:0 14px;}
+  .topbar-right .btn:not(.btn-primary){display:none;}
+  .mob-nav{display:flex;}
+  .grid2{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">
+      <div class="sb-mark">🌿</div>
+      <div>
+        <div class="sb-name">Gonçalves<span>.</span></div>
+        <div class="sb-subtitle">Admin Panel</div>
+      </div>
+    </div>
+  </div>
+  <nav>
+    <div class="sb-section">
+      <div class="sb-label">Principal</div>
+      <div class="nav-item active" onclick="showTab('dashboard',this)"><span class="ni">📊</span><span>Dashboard</span></div>
+      <div class="nav-item" onclick="showTab('pedidos',this)"><span class="ni">📦</span><span>Pedidos</span></div>
+      <div class="nav-item" onclick="showTab('rutas',this)"><span class="ni">🗺️</span><span>Rutas</span></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Gestión</div>
+      <div class="nav-item" onclick="showTab('inventario',this)"><span class="ni">🧺</span><span>Inventario</span></div>
+      <div class="nav-item" onclick="showTab('precios',this)"><span class="ni">💲</span><span>Precios</span></div>
+      <div class="nav-item" onclick="showTab('pagos',this)"><span class="ni">💳</span><span>Pagos</span></div>
+    </div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar">G</div>
+      <div><div class="sb-uname">Administrador</div><div class="sb-urole">Gonçalves</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--muted)">📍 Talagante → Melipilla</span>
+      <button class="btn btn-primary" onclick="openModal('modal-pedido')">+ Nuevo pedido</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="tab-pane active" id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card sc-green"><div class="stat-ico">📦</div><div class="stat-lbl">Pedidos Hoy</div><div class="stat-val" style="color:var(--green)">14</div><div class="stat-sub">↑ 3 más que ayer</div></div>
+        <div class="stat-card sc-gold"><div class="stat-ico">💰</div><div class="stat-lbl">Ingresos Hoy</div><div class="stat-val" style="color:var(--gold)">$187k</div><div class="stat-sub">CLP · 14 pedidos</div></div>
+        <div class="stat-card sc-red"><div class="stat-ico">⚠️</div><div class="stat-lbl">Stock Bajo</div><div class="stat-val" style="color:var(--red)">3</div><div class="stat-sub">productos críticos</div></div>
+        <div class="stat-card sc-orange"><div class="stat-ico">🛣️</div><div class="stat-lbl">Rutas Activas</div><div class="stat-val" style="color:var(--orange)">2</div><div class="stat-sub">en camino ahora</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Pedidos recientes</div><span class="badge bg-green">En vivo</span></div>
+          <div style="padding:0"><table><thead><tr><th>Cliente</th><th>Zona</th><th>Total</th><th>Estado</th></tr></thead><tbody id="dash-orders"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Stock crítico</div><button class="btn btn-secondary" style="font-size:11px" onclick="showTab('inventario',document.querySelectorAll('.nav-item')[3])">Ver todo</button></div>
+          <div class="card-body" id="dash-stock"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-hdr">
+          <div class="card-title">Mapa de cobertura — Padre Hurtado → Melipilla</div>
+          <div style="display:flex;gap:7px"><span class="badge bg-green">● Pagado</span><span class="badge bg-gold">● En camino</span><span class="badge bg-gray">● Pendiente</span></div>
+        </div>
+        <div class="card-body">
+          <div class="map-wrap">
+            <div class="map-tip" id="dash-tip"></div>
+            <svg viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+              <rect width="640" height="320" fill="#dcebd6"/>
+              <path d="M20,155 Q100,140 175,158 Q265,178 360,168 Q450,159 560,165" stroke="#c4b870" stroke-width="6" fill="none" opacity=".8"/>
+              <path d="M20,155 Q100,140 175,158 Q265,178 360,168 Q450,159 560,165" stroke="#e8d870" stroke-width="3" fill="none" stroke-dasharray="12,8"/>
+              <path d="M175,158 L180,245" stroke="#b0b070" stroke-width="3" fill="none" opacity=".5"/>
+              <path d="M360,168 L370,260" stroke="#b0b070" stroke-width="3" fill="none" opacity=".5"/>
+              <polygon points="60,110 540,90 590,200 450,270 180,278 40,200" fill="#2d5a27" fill-opacity=".05" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <text x="90" y="132" font-family="sans-serif" font-size="11" fill="#2d5a27" font-weight="700" opacity=".8">Padre Hurtado</text>
+              <text x="175" y="146" font-family="sans-serif" font-size="11" fill="#2d5a27" font-weight="700" opacity=".8">Talagante</text>
+              <text x="300" y="160" font-family="sans-serif" font-size="11" fill="#2d5a27" font-weight="700" opacity=".8">El Monte</text>
+              <text x="385" y="215" font-family="sans-serif" font-size="11" fill="#2d5a27" font-weight="700" opacity=".8">Isla de Maipo</text>
+              <text x="510" y="155" font-family="sans-serif" font-size="11" fill="#2d5a27" font-weight="700" opacity=".8">Melipilla</text>
+              <!-- Pins -->
+              <g class="map-pin-svg" onclick="showTip('dash-tip','#004 · Pedro Soto · $8.000 · Pagado')"><circle cx="100" cy="162" r="13" fill="#2d5a27" stroke="white" stroke-width="2.5"/><text x="100" y="167" text-anchor="middle" font-size="11" fill="white" font-weight="800">4</text></g>
+              <g class="map-pin-svg" onclick="showTip('dash-tip','#001 · María González · $9.960 · Pendiente')"><circle cx="198" cy="172" r="13" fill="#8a7f6e" stroke="white" stroke-width="2.5"/><text x="198" y="177" text-anchor="middle" font-size="11" fill="white" font-weight="800">1</text></g>
+              <g class="map-pin-svg" onclick="showTip('dash-tip','#003 · Ana Rojas · $7.840 · Entregado')"><circle cx="330" cy="188" r="13" fill="#4a8c40" stroke="white" stroke-width="2.5"/><text x="330" y="193" text-anchor="middle" font-size="11" fill="white" font-weight="800">3</text></g>
+              <g class="map-pin-svg" onclick="showTip('dash-tip','#005 · Luisa Fernández · $11.490 · Pendiente')"><circle cx="400" cy="228" r="13" fill="#8a7f6e" stroke="white" stroke-width="2.5"/><text x="400" y="233" text-anchor="middle" font-size="11" fill="white" font-weight="800">5</text></g>
+              <g class="map-pin-svg" onclick="showTip('dash-tip','#002 · Carlos Muñoz · $14.970 · En Camino')"><circle cx="530" cy="172" r="13" fill="#c8953a" stroke="white" stroke-width="2.5"/><text x="530" y="177" text-anchor="middle" font-size="11" fill="white" font-weight="800">2</text></g>
+              <path d="M530,172 Q465,190 400,228" stroke="#c8953a" stroke-width="2.5" fill="none" stroke-dasharray="7,5" opacity=".8"/>
+              <rect x="10" y="284" width="260" height="30" rx="8" fill="white" fill-opacity=".8"/>
+              <circle cx="28" cy="299" r="8" fill="#2d5a27"/><text x="42" y="303" font-family="sans-serif" font-size="10" fill="#333">Pagado/Entregado</text>
+              <circle cx="28" cy="312" r="0"/><circle cx="135" cy="299" r="8" fill="#c8953a"/><text x="149" y="303" font-family="sans-serif" font-size="10" fill="#333">En Camino</text>
+              <circle cx="135" cy="312" r="8" fill="#8a7f6e"/><text x="149" y="316" font-family="sans-serif" font-size="10" fill="#333">Pendiente</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PEDIDOS ══ -->
+    <div class="tab-pane" id="tab-pedidos">
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <input type="text" id="search-orders" placeholder="🔍 Buscar cliente, dirección…" style="max-width:280px;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;flex:1;" oninput="renderOrders()">
+        <select id="filter-status" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;" onchange="renderOrders()">
+          <option value="">Todos los estados</option><option value="pendiente">Pendiente</option><option value="en camino">En camino</option><option value="entregado">Entregado</option><option value="pagado">Pagado</option>
+        </select>
+        <select style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;">
+          <option>Todas las zonas</option><option>Talagante</option><option>El Monte</option><option>Isla de Maipo</option><option>Melipilla</option><option>Padre Hurtado</option>
+        </select>
+      </div>
+      <div id="orders-list"></div>
+    </div>
+
+    <!-- ══ RUTAS ══ -->
+    <div class="tab-pane" id="tab-rutas">
+      <div class="grid2">
+        <div>
+          <div class="card" style="margin-bottom:18px">
+            <div class="card-hdr"><div class="card-title">⚡ Optimizar Ruta del Día</div><button class="btn btn-primary" onclick="optimizeRoute()">Optimizar</button></div>
+            <div class="card-body">
+              <div class="fld"><label>Fecha</label><input type="date" id="route-date"></div>
+              <div class="fld"><label>Origen</label><input type="text" value="Talagante Centro"></div>
+              <div class="fld"><label>Pedidos a incluir</label><div id="route-checks" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:4px;"></div></div>
+              <div style="background:#f0f7ee;border-radius:10px;padding:12px 14px;font-size:12px;color:var(--green)"><strong>Zona principal:</strong> Talagante → Melipilla<br><strong>Zona secundaria:</strong> Padre Hurtado → Peñaflor</div>
+            </div>
+          </div>
+          <div class="card"><div class="card-hdr"><div class="card-title">Paradas en ruta</div></div><div class="card-body" id="route-stops"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Mapa de ruta optimizada</div><div style="display:flex;gap:6px"><button class="btn btn-secondary" style="font-size:11px" onclick="notif('🚗 Modo auto seleccionado','ok')">🚗 Auto</button><button class="btn btn-secondary" style="font-size:11px" onclick="notif('🛵 Modo moto seleccionado','ok')">🛵 Moto</button></div></div>
+          <div class="card-body">
+            <div class="map-wrap">
+              <div class="map-tip" id="route-tip"></div>
+              <svg viewBox="0 0 580 380" xmlns="http://www.w3.org/2000/svg">
+                <rect width="580" height="380" fill="#dcebd6"/>
+                <path d="M20,150 Q90,136 160,152 Q240,170 330,162 Q415,154 560,160" stroke="#c4b870" stroke-width="5" fill="none" opacity=".8"/>
+                <path d="M20,150 Q90,136 160,152 Q240,170 330,162 Q415,154 560,160" stroke="#e8d870" stroke-width="2.5" fill="none" stroke-dasharray="10,7"/>
+                <!-- Route line -->
+                <path d="M90,158 L220,168 L340,200 L440,170 L530,162" stroke="#c8953a" stroke-width="3.5" fill="none" stroke-dasharray="10,5" opacity=".9"/>
+                <!-- Zone labels -->
+                <text x="80" y="136" font-family="sans-serif" font-size="10" fill="#2d5a27" font-weight="700" opacity=".8">Padre Hurtado</text>
+                <text x="200" y="142" font-family="sans-serif" font-size="10" fill="#2d5a27" font-weight="700" opacity=".8">Talagante</text>
+                <text x="300" y="152" font-family="sans-serif" font-size="10" fill="#2d5a27" font-weight="700" opacity=".8">El Monte</text>
+                <text x="370" y="228" font-family="sans-serif" font-size="10" fill="#2d5a27" font-weight="700" opacity=".8">Isla de Maipo</text>
+                <text x="480" y="150" font-family="sans-serif" font-size="10" fill="#2d5a27" font-weight="700" opacity=".8">Melipilla</text>
+                <!-- Origin -->
+                <circle cx="90" cy="158" r="13" fill="#c8953a" stroke="white" stroke-width="2.5"/>
+                <text x="90" y="163" text-anchor="middle" font-size="10" fill="white" font-weight="900">🏠</text>
+                <text x="90" y="181" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c8953a" font-weight="700">Origen</text>
+                <!-- Stops -->
+                <g class="map-pin-svg" onclick="showTip('route-tip','Parada 1 · María González · Talagante · $9.960')"><circle cx="220" cy="168" r="14" fill="#2d5a27" stroke="white" stroke-width="2.5"/><text x="220" y="173" text-anchor="middle" font-size="12" fill="white" font-weight="900">1</text></g>
+                <g class="map-pin-svg" onclick="showTip('route-tip','Parada 2 · Luisa Fernández · Isla de Maipo · $11.490')"><circle cx="340" cy="200" r="14" fill="#2d5a27" stroke="white" stroke-width="2.5"/><text x="340" y="205" text-anchor="middle" font-size="12" fill="white" font-weight="900">2</text></g>
+                <g class="map-pin-svg" onclick="showTip('route-tip','Parada 3 · Carlos Muñoz · Melipilla · $14.970')"><circle cx="530" cy="162" r="14" fill="#2d5a27" stroke="white" stroke-width="2.5"/><text x="530" y="167" text-anchor="middle" font-size="12" fill="white" font-weight="900">3</text></g>
+                <!-- Summary -->
+                <rect x="170" y="315" width="240" height="55" rx="12" fill="white" fill-opacity=".88"/>
+                <text x="290" y="336" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#2d5a27" font-weight="800">Ruta Optimizada ⚡</text>
+                <text x="200" y="354" font-family="sans-serif" font-size="10" fill="#555">📍 3 paradas</text>
+                <text x="295" y="354" font-family="sans-serif" font-size="10" fill="#555">🕐 ~54 min</text>
+                <text x="200" y="366" font-family="sans-serif" font-size="10" fill="#555">🛣️ ~25 km totales</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ INVENTARIO ══ -->
+    <div class="tab-pane" id="tab-inventario">
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+        <input type="text" placeholder="🔍 Buscar producto…" style="max-width:240px;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;flex:1;">
+        <select style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;"><option>Todas las categorías</option><option>Frutas</option><option>Verduras</option><option>Hojas</option><option>Despensa</option><option>Frutos secos</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-producto')">+ Agregar</button>
+        <button class="btn btn-secondary" onclick="openModal('modal-restock')">📦 Reabastecer</button>
+      </div>
+      <div class="card">
+        <table><thead><tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Mín.</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="inv-table"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ══ PRECIOS ══ -->
+    <div class="tab-pane" id="tab-precios">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">💲 Gestión de precios y catálogo</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary" style="font-size:11px" onclick="bulkDiscount()">% Descuento masivo</button>
+            <button class="btn btn-gold" onclick="savePrices()">💾 Guardar cambios</button>
+          </div>
+        </div>
+        <div style="padding:0"><table><thead><tr><th>Producto</th><th>Unidad</th><th>Precio actual</th><th>Nuevo precio</th><th>Descuento</th><th>Activo</th></tr></thead><tbody id="price-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ PAGOS ══ -->
+    <div class="tab-pane" id="tab-pagos">
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card sc-green"><div class="stat-ico">✅</div><div class="stat-lbl">Confirmados</div><div class="stat-val" style="color:var(--green)">$312k</div><div class="stat-sub">8 transacciones</div></div>
+        <div class="stat-card sc-gold"><div class="stat-ico">⏳</div><div class="stat-lbl">Pendientes</div><div class="stat-val" style="color:var(--gold)">$68k</div><div class="stat-sub">3 sin confirmar</div></div>
+        <div class="stat-card sc-red"><div class="stat-ico">🔄</div><div class="stat-lbl">Por cobrar</div><div class="stat-val" style="color:var(--red)">$25k</div><div class="stat-sub">1 pedido</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Últimas transacciones</div></div>
+          <div style="padding:0"><table><thead><tr><th>Cliente</th><th>Método</th><th>Monto</th><th>Estado</th></tr></thead><tbody id="pay-table"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Métodos de pago</div></div>
+          <div class="card-body">
+            <div class="pay-method-card"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">🏦</span><div><div style="font-weight:700;font-size:13px">Transferencia Bancaria</div><div style="font-size:11px;color:var(--muted)">Mercado Pago · Cta Vista 1093268005 · RUT 13.669.339-5</div></div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+            <div class="pay-method-card" style="border:1.5px solid #009ee3;background:#f0f8ff"><div style="display:flex;align-items:center;gap:10px"><div style="background:#009ee3;border-radius:8px;padding:4px 8px;font-size:10px;font-weight:800;color:white">MP</div><div><div style="font-weight:700;font-size:13px">Mercado Pago <span style="background:#e8f5e2;color:var(--green);font-size:9px;font-weight:800;padding:2px 6px;border-radius:20px;margin-left:4px">ACTIVO</span></div><div style="font-size:11px;color:#009ee3;font-weight:600">link.mercadopago.cl/comgoncalves</div></div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+            <div class="pay-method-card"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">💵</span><div><div style="font-weight:700;font-size:13px">Efectivo al delivery</div><div style="font-size:11px;color:var(--muted)">Pago contra entrega</div></div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+            <div style="background:#f0f8ff;border-radius:12px;padding:14px;margin-top:6px;border:1.5px solid #009ee3">
+              <div style="font-size:11px;font-weight:800;color:#009ee3;margin-bottom:6px">📱 Mercado Pago — Configuración</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Link activo: <strong style="color:#009ee3">link.mercadopago.cl/comgoncalves</strong></div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Titular: <strong>Felipe Gonçalves</strong> · +56 9 7570 9705</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <a href="https://link.mercadopago.cl/comgoncalves" target="_blank" style="text-decoration:none"><button class="btn" style="background:#009ee3;color:white;font-size:11px;padding:6px 12px">🔗 Abrir link</button></a>
+                <a href="https://wa.me/56975709705" target="_blank" style="text-decoration:none"><button class="btn btn-secondary" style="font-size:11px;padding:6px 12px">💬 WhatsApp Felipe</button></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /main -->
+
+<!-- MODALS -->
+<div class="modal-ov" id="modal-pedido">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">📦 Nuevo Pedido Manual</div><button class="modal-close" onclick="closeModal('modal-pedido')">✕</button></div>
+    <div class="modal-body">
+      <div class="fld-row"><div class="fld"><label>Cliente</label><input type="text" placeholder="Nombre completo"></div><div class="fld"><label>Teléfono</label><input type="text" placeholder="+56 9…"></div></div>
+      <div class="fld"><label>Dirección</label><input type="text" placeholder="Calle, número, comuna"></div>
+      <div class="fld-row"><div class="fld"><label>Zona</label><select><option>Talagante</option><option>El Monte</option><option>Isla de Maipo</option><option>Melipilla</option><option>Padre Hurtado</option><option>Peñaflor</option></select></div><div class="fld"><label>Fecha entrega</label><input type="date"></div></div>
+      <div class="fld"><label>Productos</label><div id="modal-products"></div><button class="btn btn-secondary" style="font-size:11px;margin-top:6px" onclick="addProdLine()">+ Agregar producto</button></div>
+      <div class="fld-row"><div class="fld"><label>Método de pago</label><select><option>Transferencia</option><option>Mercado Pago</option><option>Efectivo</option></select></div><div class="fld"><label>Estado</label><select><option>Pendiente</option><option>Confirmado</option><option>En camino</option></select></div></div>
+      <div class="fld"><label>Notas</label><textarea rows="2" style="resize:none"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('modal-pedido')">Cancelar</button><button class="btn btn-primary" onclick="saveOrder()">Guardar pedido</button></div>
+  </div>
+</div>
+
+<div class="modal-ov" id="modal-producto">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">🧺 Agregar Producto</div><button class="modal-close" onclick="closeModal('modal-producto')">✕</button></div>
+    <div class="modal-body">
+      <div class="fld-row"><div class="fld"><label>Nombre</label><input type="text" placeholder="Ej: Tomate cherry"></div><div class="fld"><label>Emoji</label><input type="text" placeholder="🍅" maxlength="4"></div></div>
+      <div class="fld-row"><div class="fld"><label>Categoría</label><select><option>Frutas</option><option>Verduras</option><option>Hojas</option><option>Despensa</option><option>Frutos secos</option></select></div><div class="fld"><label>Unidad</label><select><option>kg</option><option>unidad</option><option>atado</option><option>malla</option><option>saco</option></select></div></div>
+      <div class="fld-row"><div class="fld"><label>Stock inicial</label><input type="number" placeholder="0"></div><div class="fld"><label>Stock mínimo</label><input type="number" placeholder="5"></div></div>
+      <div class="fld-row"><div class="fld"><label>Precio venta (CLP)</label><div class="price-wrap"><span>$</span><input type="number" placeholder="0"></div></div><div class="fld"><label>Costo unitario</label><div class="price-wrap"><span>$</span><input type="number" placeholder="0"></div></div></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('modal-producto')">Cancelar</button><button class="btn btn-primary" onclick="addProduct()">Agregar</button></div>
+  </div>
+</div>
+
+<div class="modal-ov" id="modal-restock">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">📦 Reabastecer Inventario</div><button class="modal-close" onclick="closeModal('modal-restock')">✕</button></div>
+    <div class="modal-body"><div class="fld"><label>Fecha ingreso</label><input type="date"></div><div id="restock-list"></div></div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal('modal-restock')">Cancelar</button><button class="btn btn-primary" onclick="applyRestock()">Aplicar</button></div>
+  </div>
+</div>
+
+<!-- NOTIF -->
+<div class="notif" id="notif-bar"></div>
+
+<!-- MOBILE NAV -->
+<nav class="mob-nav">
+  <button class="mob-item active" onclick="mobNav('dashboard',this)"><span class="mi">📊</span>Dashboard</button>
+  <button class="mob-item" onclick="mobNav('pedidos',this)"><span class="mi">📦</span>Pedidos</button>
+  <button class="mob-item" onclick="mobNav('rutas',this)"><span class="mi">🗺️</span>Rutas</button>
+  <button class="mob-item" onclick="mobNav('inventario',this)"><span class="mi">🧺</span>Stock</button>
+  <button class="mob-item" onclick="mobNav('pagos',this)"><span class="mi">💳</span>Pagos</button>
+</nav>
+
+<script>
+// ═══ DATA (precios referenciados de Sabores del Huerto zona) ═══
+const products=[
+  {id:1,name:'Plátano Extra',emoji:'🍌',cat:'Frutas',unit:'kg',stock:28,min:10,price:1990,cost:900,active:true},
+  {id:2,name:'Manzana',emoji:'🍎',cat:'Frutas',unit:'kg',stock:35,min:15,price:1490,cost:700,active:true},
+  {id:3,name:'Palta Hass',emoji:'🥑',cat:'Frutas',unit:'kg',stock:18,min:10,price:2490,cost:1200,active:true},
+  {id:4,name:'Limón',emoji:'🍋',cat:'Frutas',unit:'kg',stock:4,min:10,price:1490,cost:700,active:true},
+  {id:5,name:'Naranja',emoji:'🍊',cat:'Frutas',unit:'kg',stock:40,min:20,price:990,cost:450,active:true},
+  {id:6,name:'Tomate',emoji:'🍅',cat:'Verduras',unit:'kg',stock:22,min:10,price:990,cost:480,active:true},
+  {id:7,name:'Zanahoria',emoji:'🥕',cat:'Verduras',unit:'kg',stock:3,min:10,price:1000,cost:450,active:true},
+  {id:8,name:'Cebolla',emoji:'🧅',cat:'Verduras',unit:'kg',stock:5,min:10,price:890,cost:400,active:true},
+  {id:9,name:'Papa Lavada',emoji:'🥔',cat:'Verduras',unit:'saco 5k',stock:12,min:5,price:6900,cost:4000,active:true},
+  {id:10,name:'Lechuga',emoji:'🥬',cat:'Hojas',unit:'unidad',stock:18,min:8,price:790,cost:350,active:true},
+  {id:11,name:'Acelga',emoji:'🌿',cat:'Hojas',unit:'unidad',stock:10,min:6,price:1500,cost:600,active:true},
+  {id:12,name:'Cilantro',emoji:'🌱',cat:'Hojas',unit:'200 gr',stock:8,min:5,price:990,cost:400,active:true},
+  {id:13,name:'Aceite Maravilla',emoji:'🫙',cat:'Despensa',unit:'900 ml',stock:20,min:8,price:2700,cost:1800,active:true},
+  {id:14,name:'Porotos Rojos',emoji:'🫘',cat:'Despensa',unit:'800 gr',stock:15,min:6,price:3500,cost:2000,active:true},
+  {id:15,name:'Miel Mediana',emoji:'🍯',cat:'Despensa',unit:'500 gr',stock:8,min:4,price:4490,cost:2800,active:true},
+  {id:16,name:'Almendras',emoji:'🌰',cat:'Frutos secos',unit:'550 gr',stock:12,min:5,price:9000,cost:5500,active:true},
+  {id:17,name:'Malla Cebollas',emoji:'🧅',cat:'Verduras',unit:'~17 kg',stock:6,min:3,price:12990,cost:8000,active:true},
+  {id:18,name:'Malla Limones',emoji:'🍋',cat:'Frutas',unit:'~17 kg',stock:4,min:2,price:20990,cost:13000,active:true},
+];
+
+const orders=[
+  {id:'#001',client:'María González',addr:'Av. Las Torres 123, Talagante',zone:'Talagante',items:[{name:'Tomate',qty:2,unit:'kg'},{name:'Lechuga',qty:3,unit:'un'}],total:9960,date:'2025-06-10',status:'pendiente',lat:-33.66,lng:-70.93,payment:'Transferencia'},
+  {id:'#002',client:'Carlos Muñoz',addr:'Pasaje Las Flores 45, Melipilla',zone:'Melipilla',items:[{name:'Manzana',qty:3,unit:'kg'},{name:'Palta Hass',qty:2,unit:'kg'}],total:14970,date:'2025-06-10',status:'en camino',lat:-33.69,lng:-71.21,payment:'Mercado Pago'},
+  {id:'#003',client:'Ana Rojas',addr:'Los Aromos 78, El Monte',zone:'El Monte',items:[{name:'Zanahoria',qty:2,unit:'kg'},{name:'Acelga',qty:2,unit:'un'}],total:7840,date:'2025-06-10',status:'entregado',lat:-33.70,lng:-71.02,payment:'Efectivo'},
+  {id:'#004',client:'Pedro Soto',addr:'Calle Principal 200, Padre Hurtado',zone:'Padre Hurtado',items:[{name:'Papa Lavada',qty:1,unit:'saco'},{name:'Limón',qty:1,unit:'kg'}],total:8390,date:'2025-06-10',status:'pagado',lat:-33.56,lng:-70.79,payment:'Transferencia'},
+  {id:'#005',client:'Luisa Fernández',addr:'Av. Libertad 310, Isla de Maipo',zone:'Isla de Maipo',items:[{name:'Tomate',qty:4,unit:'kg'},{name:'Miel Mediana',qty:1,unit:'un'}],total:11490,date:'2025-06-10',status:'pendiente',lat:-33.74,lng:-70.90,payment:'Mercado Pago'},
+];
+
+const payments=[
+  {client:'Pedro Soto',method:'Transferencia',amount:8390,status:'pagado'},
+  {client:'Carlos Muñoz',method:'Mercado Pago',amount:14970,status:'confirmado'},
+  {client:'Ana Rojas',method:'Efectivo',amount:7840,status:'pagado'},
+  {client:'María González',method:'Transferencia',amount:9960,status:'pendiente'},
+  {client:'Luisa Fernández',method:'Mercado Pago',amount:11490,status:'pendiente'},
+];
+
+// NAVIGATION
+function showTab(name,el){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',pedidos:'Pedidos',rutas:'Rutas',inventario:'Inventario',precios:'Precios',pagos:'Pagos'};
+  document.getElementById('page-title').textContent=titles[name]||name;
+  if(name==='rutas')initRouteStops();
+  if(name==='inventario')renderInventory();
+  if(name==='precios')renderPriceTable();
+  if(name==='pagos')renderPayments();
+}
+function mobNav(name,el){showTab(name,null);document.querySelectorAll('.mob-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');}
+
+// MODALS
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='modal-pedido')initModalProds();
+  if(id==='modal-restock')initRestock();
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// NOTIF
+function notif(msg,type='ok'){
+  const n=document.getElementById('notif-bar');
+  n.textContent=msg;n.className='notif '+type+' show';
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// MAP TIPS
+function showTip(id,msg){
+  const t=document.getElementById(id);
+  t.textContent=msg;t.style.display='block';
+  setTimeout(()=>t.style.display='none',3000);
+}
+
+// STATUS BADGE
+function sBadge(s){return{pendiente:'bg-gray','en camino':'bg-gold',entregado:'bg-green',pagado:'bg-green'}[s]||'bg-gray';}
+
+// DASHBOARD
+function renderDashboard(){
+  document.getElementById('dash-orders').innerHTML=orders.slice(0,5).map(o=>`
+    <tr><td><strong>${o.client}</strong><br><small style="color:var(--muted)">${o.id}</small></td>
+    <td>${o.zone}</td>
+    <td><strong style="color:var(--green);font-family:'Playfair Display',serif">$${o.total.toLocaleString('es-CL')}</strong></td>
+    <td><span class="badge ${sBadge(o.status)}">${o.status}</span></td></tr>`).join('');
+  const crit=products.filter(p=>p.stock<=p.min);
+  document.getElementById('dash-stock').innerHTML=crit.map(p=>{
+    const pct=Math.min(100,(p.stock/p.min)*100);
+    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:22px">${p.emoji}</span>
+      <div style="flex:1"><div style="font-weight:700;font-size:13px">${p.name}</div>
+      <div style="font-size:11px;color:var(--muted)">${p.stock} ${p.unit} / mín ${p.min}</div>
+      <div class="sbar-wrap"><div class="sbar sbar-low" style="width:${pct}%"></div></div></div>
+      <span class="badge bg-red">Bajo</span></div>`;
+  }).join('')||'<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px">✅ Todos los stocks OK</div>';
+}
+
+// ORDERS
+function renderOrders(){
+  const f=document.getElementById('filter-status').value;
+  const q=(document.getElementById('search-orders').value||'').toLowerCase();
+  const list=orders.filter(o=>(!f||o.status===f)&&(!q||o.client.toLowerCase().includes(q)||o.addr.toLowerCase().includes(q)));
+  document.getElementById('orders-list').innerHTML=list.map(o=>`
+    <div class="order-card">
+      <div style="flex:1">
+        <div class="oc-id">${o.id} — ${o.client}</div>
+        <div class="oc-meta">📍 ${o.addr} · 📅 ${o.date}</div>
+        <div class="oc-items">${o.items.map(i=>`${i.qty}${i.unit} ${i.name}`).join(' · ')}</div>
+        <div style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap">
+          <span class="badge ${sBadge(o.status)}">${o.status}</span>
+          <span class="badge bg-gray">💳 ${o.payment}</span>
+          <span class="badge bg-gray">${o.zone}</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="oc-total">$${o.total.toLocaleString('es-CL')}</div>
+        <div style="font-size:10px;color:var(--muted)">CLP</div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:8px">
+          <button class="btn btn-secondary" style="font-size:10px;padding:4px 8px" onclick="notif('Editando ${o.id}','ok')">✏️ Editar</button>
+          <button class="btn" style="font-size:10px;padding:4px 8px;background:#fde8e6;color:var(--red)" onclick="notif('Pedido cancelado','err')">🗑 Cancelar</button>
+        </div>
+      </div>
+    </div>`).join('')||'<div style="text-align:center;padding:40px;color:var(--muted)">Sin resultados</div>';
+}
+
+// ROUTE
+function initRouteStops(){
+  const ro=orders.filter(o=>o.status==='pendiente'||o.status==='en camino');
+  const dist=(ro.length*8.4).toFixed(1), time=Math.round(ro.length*18);
+  document.getElementById('route-stops').innerHTML=`
+    <div style="display:flex;gap:12px;margin-bottom:14px">
+      <div style="background:#f0f7ee;border-radius:8px;padding:9px 13px;flex:1;text-align:center"><div style="font-size:10px;color:var(--muted)">Distancia</div><div style="font-weight:700;color:var(--green)">${dist} km</div></div>
+      <div style="background:#fff8ee;border-radius:8px;padding:9px 13px;flex:1;text-align:center"><div style="font-size:10px;color:var(--muted)">Tiempo est.</div><div style="font-weight:700;color:var(--gold)">${time} min</div></div>
+    </div>
+    ${ro.map((o,i)=>`<div class="route-stop">
+      <div class="rs-num">${i+1}</div>
+      <div style="flex:1"><div class="rs-name">${o.client}</div><div class="rs-addr">${o.addr}</div>
+      <div class="rs-items">${o.items.map(x=>`${x.qty}${x.unit} ${x.name}`).join(' · ')} — $${o.total.toLocaleString('es-CL')}</div></div>
+      <span class="badge ${sBadge(o.status)}">${o.status}</span></div>`).join('')}`;
+  document.getElementById('route-checks').innerHTML=ro.map(o=>`
+    <label style="display:flex;align-items:center;gap:5px;background:var(--bg);padding:5px 9px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">
+      <input type="checkbox" checked> ${o.id} ${o.client}</label>`).join('');
+}
+function optimizeRoute(){notif('⚡ Ruta optimizada por distancia mínima','ok');}
+
+// INVENTORY
+function renderInventory(){
+  document.getElementById('inv-table').innerHTML=products.map(p=>{
+    const pct=Math.min(100,(p.stock/(p.min*3))*100);
+    const cls=p.stock<=p.min?'sbar-low':p.stock<=p.min*1.5?'sbar-mid':'sbar-ok';
+    const st=p.stock<=p.min?'bg-red':p.stock<=p.min*1.5?'bg-gold':'bg-green';
+    const stl=p.stock<=p.min?'Bajo':p.stock<=p.min*1.5?'Medio':'OK';
+    return`<tr><td><span>${p.emoji}</span> <strong>${p.name}</strong></td>
+      <td><span class="badge bg-gray">${p.cat}</span></td>
+      <td><div>${p.stock} ${p.unit}</div><div class="sbar-wrap"><div class="sbar ${cls}" style="width:${pct}%"></div></div></td>
+      <td>${p.min}</td>
+      <td><strong>$${p.price.toLocaleString('es-CL')}</strong></td>
+      <td><span class="badge ${st}">${stl}</span></td>
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-secondary" style="font-size:10px;padding:4px 8px" onclick="qkRestock(${p.id})">+Stock</button>
+        <button class="btn btn-secondary" style="font-size:10px;padding:4px 8px" onclick="qkPrice(${p.id})">Precio</button>
+      </div></td></tr>`;
+  }).join('');
+}
+function qkRestock(id){const p=products.find(x=>x.id===id);const q=prompt(`Agregar stock a ${p.emoji} ${p.name} (${p.unit}):`);if(q&&!isNaN(q)){p.stock+=parseFloat(q);renderInventory();notif(`✅ +${q} ${p.unit} de ${p.name}`,'ok');}}
+function qkPrice(id){const p=products.find(x=>x.id===id);const q=prompt(`Nuevo precio para ${p.emoji} ${p.name} (actual $${p.price}):`);if(q&&!isNaN(q)){p.price=parseInt(q);renderInventory();notif(`💲 Precio actualizado: $${parseInt(q).toLocaleString('es-CL')}`,'ok');}}
+
+// PRICES
+function renderPriceTable(){
+  document.getElementById('price-table').innerHTML=products.map(p=>`
+    <tr><td>${p.emoji} <strong>${p.name}</strong></td><td>${p.unit}</td>
+    <td>$${p.price.toLocaleString('es-CL')}</td>
+    <td><div class="price-wrap" style="width:120px"><span>$</span><input type="number" value="${p.price}" id="np-${p.id}" style="padding:6px 6px 6px 20px;font-size:12px;border:1.5px solid var(--border);border-radius:7px;width:100%;outline:none"></div></td>
+    <td><input type="number" placeholder="0" min="0" max="100" style="width:60px;padding:5px;font-size:12px;border:1.5px solid var(--border);border-radius:7px;outline:none" id="dc-${p.id}" onchange="applyDc(${p.id})"> %</td>
+    <td><label class="tgl"><input type="checkbox" ${p.active?'checked':''} onchange="toggleProd(${p.id})"><span class="tgl-sl"></span></label></td></tr>`).join('');
+}
+function applyDc(id){const d=parseFloat(document.getElementById('dc-'+id).value)||0;const p=products.find(x=>x.id===id);document.getElementById('np-'+id).value=Math.round(p.price*(1-d/100));}
+function bulkDiscount(){const d=prompt('% de descuento para todos los productos:');if(d&&!isNaN(d)){products.forEach(p=>{const el=document.getElementById('np-'+p.id);if(el)el.value=Math.round(p.price*(1-d/100));const dc=document.getElementById('dc-'+p.id);if(dc)dc.value=d;});notif(`💲 Descuento ${d}% aplicado a todos`,'ok');}}
+function savePrices(){products.forEach(p=>{const el=document.getElementById('np-'+p.id);if(el)p.price=parseInt(el.value)||p.price;});notif('✅ Precios guardados','ok');}
+function toggleProd(id){const p=products.find(x=>x.id===id);p.active=!p.active;notif(`${p.active?'✅ Activado':'⏸ Desactivado'}: ${p.name}`,'ok');}
+
+// PAYMENTS
+function renderPayments(){
+  document.getElementById('pay-table').innerHTML=payments.map(p=>`
+    <tr><td><strong>${p.client}</strong></td><td>${p.method}</td>
+    <td><strong>$${p.amount.toLocaleString('es-CL')}</strong></td>
+    <td><span class="badge ${p.status==='pagado'||p.status==='confirmado'?'bg-green':'bg-gold'}">${p.status}</span></td></tr>`).join('');
+}
+
+// MODAL PRODUCTS
+function initModalProds(){
+  document.getElementById('modal-products').innerHTML=`
+    <div style="display:grid;grid-template-columns:2fr 1fr 80px;gap:7px">
+      <select style="font-size:12px;padding:7px;border:1.5px solid var(--border);border-radius:7px;outline:none">${products.map(p=>`<option>${p.emoji} ${p.name}</option>`).join('')}</select>
+      <input type="number" placeholder="Cant." style="font-size:12px;padding:7px;border:1.5px solid var(--border);border-radius:7px;outline:none">
+      <select style="font-size:12px;padding:7px;border:1.5px solid var(--border);border-radius:7px;outline:none"><option>kg</option><option>un</option></select>
+    </div>`;
+}
+function addProdLine(){const c=document.getElementById('modal-products');const d=document.createElement('div');d.style='display:grid;grid-template-columns:2fr 1fr 80px;gap:7px;margin-top:6px';d.innerHTML=`<select style="font-size:12px;padding:7px;border:1.5px solid var(--border);border-radius:7px;outline:none">${products.map(p=>`<option>${p.emoji} ${p.name}</option>`).join('')}</select><input type="number" placeholder="Cant." style="font-size:12px;padding:7px;border:1.5px solid var(--border);border-radius:7px;outline:none"><select style="font-size:12px;padding:7px;border:1.5px solid var(--border);border-radius:7px;outline:none"><option>kg</option><option>un</option></select>`;c.appendChild(d);}
+function saveOrder(){closeModal('modal-pedido');notif('✅ Pedido guardado correctamente','ok');}
+function addProduct(){closeModal('modal-producto');notif('✅ Producto agregado al inventario','ok');}
+
+function initRestock(){document.getElementById('restock-list').innerHTML=products.map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:9px;background:var(--bg);border-radius:8px;margin-bottom:7px"><span style="font-size:18px">${p.emoji}</span><div style="flex:1"><div style="font-weight:700;font-size:12px">${p.name}</div><div style="font-size:11px;color:var(--muted)">Stock: ${p.stock} ${p.unit}</div></div><input type="number" placeholder="+0" min="0" style="width:70px;font-size:12px;padding:5px;border:1.5px solid var(--border);border-radius:7px;outline:none" id="rs-${p.id}"></div>`).join('');}
+function applyRestock(){let n=0;products.forEach(p=>{const el=document.getElementById('rs-'+p.id);if(el&&el.value>0){p.stock+=parseFloat(el.value);n++;}});closeModal('modal-restock');if(n){notif(`✅ ${n} productos reabastecidos`,'ok');renderInventory();}else notif('Sin cambios','ok');}
+
+// INIT
+renderDashboard();
+renderOrders();
+document.getElementById('route-date').value=new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
